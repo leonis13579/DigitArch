@@ -4,13 +4,9 @@
 
 #define MAX_FRAME 60
 
-
-DigitArchThread::DigitArchThread()
+DigitArchThread::DigitArchThread(PointMode mode)
 {
-}
-
-DigitArchThread::~DigitArchThread()
-{
+	Points.TypePoint = mode;
 }
 
 void DigitArchThread::SetPoint()
@@ -20,18 +16,17 @@ void DigitArchThread::SetPoint()
 	if (point_frame >= MAX_FRAME)
 	{
 		FString json_string;
-		GetJson(PointMode::One, json_string);
-		UE_LOG(LogTemp, Log, TEXT("%s"), *json_string);
+		GetJson(json_string);
+		//UE_LOG(LogTemp, Log, TEXT("%s"), *json_string);
 
 		point_frame = 0;
-
 	}
 
 	FPointInfo point_info;
 	point_info.Position = point;
 	point_info.Frame = ++point_frame;
 
-	if (!Point.Contains(PointMode::One))
+	/*if (!Point.Contains(PointMode::One))
 	{
 		FPoints points;
 		points.PointPosition.Add(point_info);
@@ -40,16 +35,20 @@ void DigitArchThread::SetPoint()
 		return;
 	}
 
-	Point[PointMode::One].PointPosition.Add(point_info);
+	Point[PointMode::One].PointPosition.Add(point_info);*/
+
+	Points.PointPosition.Add(point_info);
 }
 
-void DigitArchThread::GetJson(PointMode point, FString& json_string)
+void DigitArchThread::GetJson(FString& json_string)
 {
-	if (!Point.Contains(point))
+	if (Points.PointPosition.Num() == 0)
 		return;
 
-	FJsonObjectConverter::UStructToJsonObjectString(Point[point], json_string);
-	Point.Remove(point);
+	FJsonObjectConverter::UStructToJsonObjectString(Points, json_string);
+
+	Points.PointPosition.Empty();
+	
 }
 
 uint32 DigitArchThread::Run()

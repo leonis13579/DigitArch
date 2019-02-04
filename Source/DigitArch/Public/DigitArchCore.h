@@ -9,7 +9,6 @@
 #include "DigitArchCore.generated.h"
 
 
-
 UCLASS(Blueprintable, BlueprintType)
 class DIGITARCH_API UDigitArchCore : public UObject
 {
@@ -20,18 +19,16 @@ public:
 	UDigitArchCore();
 	~UDigitArchCore();
 
-	UFUNCTION(BlueprintPure, meta = (HidePin = "owner", DefaultToSelf = "owner"))
-	static UDigitArchCore* CreateDigitArchCore(UObject* owner);
+	UFUNCTION(BlueprintPure)
+	static UDigitArchCore* CreateDigitArchCore(PointMode point);
 
 	UFUNCTION(BlueprintCallable)
-	void SetPoint(PointMode point, FVector position);
+	void SetPoint(FVector position);
 
 	//UFUNCTION(BlueprintPure)
 	//	void GetJson(PointMode point, FString& json_string);
 
 private:
-
-	FVector* test;
 
 	DigitArchThread* DigitThread;
 	FRunnableThread* Thread;

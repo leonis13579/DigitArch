@@ -16,22 +16,17 @@ UDigitArchCore::~UDigitArchCore()
 	}
 }
 
-UDigitArchCore* UDigitArchCore::CreateDigitArchCore(UObject* owner)
+UDigitArchCore* UDigitArchCore::CreateDigitArchCore(PointMode point)
 {
 	const auto obj = NewObject<UDigitArchCore>();
-	obj->DigitThread = new DigitArchThread();
+	obj->DigitThread = new DigitArchThread(point);
 	obj->Thread = FRunnableThread::Create(obj->DigitThread, TEXT("DigitArchThread"));
 	return obj;
 }
 
-void UDigitArchCore::SetPoint(PointMode point, FVector position)
+void UDigitArchCore::SetPoint(FVector position)
 {
 	DigitThread->point = position;
 
 	DigitThread->bPositionActive = true;
 }
-//
-//void UDigitArchCore::GetJson(PointMode point, FString& json_string)
-//{
-//	DigitThread->GetJson(point, json_string);
-//}

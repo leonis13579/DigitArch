@@ -31,6 +31,9 @@ struct DIGITARCH_API FPoints
 {
 	GENERATED_BODY()
 
+		UPROPERTY(BlueprintReadOnly)
+	PointMode TypePoint;
+
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FPointInfo> PointPosition;
 };
@@ -38,11 +41,11 @@ struct DIGITARCH_API FPoints
 class DIGITARCH_API DigitArchThread : public FRunnable
 {
 public:
-	DigitArchThread();
-	~DigitArchThread();
+	DigitArchThread(PointMode mode);
+	//~DigitArchThread();
 
 	void SetPoint();
-	void GetJson(PointMode point, FString& json_string);
+	void GetJson(FString& json_string);
 
 	bool bPositionActive = false;
 	FVector point;
@@ -54,8 +57,9 @@ private:
 	void Stop() override;
 
 	int32 point_frame = 0;
-	TMap<PointMode, FPoints> Point;
+	//TMap<PointMode, FPoints> Point;
 
+	FPoints Points;
 
 	bool working = true;
 
