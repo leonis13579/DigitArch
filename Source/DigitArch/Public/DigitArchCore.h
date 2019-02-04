@@ -4,37 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
+#include "RunnableThread.h"
+#include "DigitArchThread.h"
 #include "DigitArchCore.generated.h"
-
-UENUM(BlueprintType)
-enum class PointMode : uint8
-{
-	One,
-	Two
-};
-
-USTRUCT(BlueprintType)
-struct DIGITARCH_API FPointInfo
-{
-	GENERATED_BODY()
-
-		UPROPERTY(BlueprintReadOnly)
-		int32 Frame;
-
-		UPROPERTY(BlueprintReadOnly)
-		FVector Position;
-};
-
-USTRUCT(BlueprintType)
-struct DIGITARCH_API FPoints
-{	
-	GENERATED_BODY()
-
-	
-	UPROPERTY(BlueprintReadOnly)
-	TArray<FPointInfo> PointPosition;
-};
 
 
 
@@ -46,22 +18,21 @@ class DIGITARCH_API UDigitArchCore : public UObject
 public:
 
 	UDigitArchCore();
+	~UDigitArchCore();
 
-	UFUNCTION(BlueprintPure)
-	static UDigitArchCore* CreateDigitArchCore();
+	UFUNCTION(BlueprintPure, meta = (HidePin = "owner", DefaultToSelf = "owner"))
+	static UDigitArchCore* CreateDigitArchCore(UObject* owner);
 
 	UFUNCTION(BlueprintCallable)
 	void SetPoint(PointMode point, FVector position);
 
-	UFUNCTION(BlueprintPure)
-		void GetJson(PointMode point, FString& json_string);
-
-	UFUNCTION(BlueprintPure)
-	TMap<PointMode, FPoints> GetPoint();
+	//UFUNCTION(BlueprintPure)
+	//	void GetJson(PointMode point, FString& json_string);
 
 private:
-	int32 point_frame;
-	TMap<PointMode, FPoints> Point;
 
-	FString json_string;
+	FVector* test;
+
+	DigitArchThread* DigitThread;
+	FRunnableThread* Thread;
 };

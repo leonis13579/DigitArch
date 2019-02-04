@@ -2,54 +2,36 @@
 
 #include "DigitArchCore.h"
 
-#define MAX_FRAME 60
 
 UDigitArchCore::UDigitArchCore()
 {
-	point_frame = 0;
+
 }
 
-UDigitArchCore* UDigitArchCore::CreateDigitArchCore()
+UDigitArchCore::~UDigitArchCore()
+{
+	if (Thread != nullptr) {
+		Thread->Kill();
+		Thread->WaitForCompletion();
+	}
+}
+
+UDigitArchCore* UDigitArchCore::CreateDigitArchCore(UObject* owner)
 {
 	const auto obj = NewObject<UDigitArchCore>();
+	obj->DigitThread = new DigitArchThread();
+	obj->Thread = FRunnableThread::Create(obj->DigitThread, TEXT("DigitArchThread"));
 	return obj;
 }
 
 void UDigitArchCore::SetPoint(PointMode point, FVector position)
 {
-	if (point_frame >= MAX_FRAME)
-	{
-		GetJson(point, json_string);
-		point_frame = 0;
+	DigitThread->point = position;
 
-		UE_LOG(LogTemp, Log, TEXT("%s"), *json_string);
-	}
-
-	FPointInfo point_info;
-	point_info.Position = position;
-	point_info.Frame = ++point_frame;
-
-	if (!Point.Contains(point))
-	{
-		FPoints points;
-		points.PointPosition.Add(point_info);
-		Point.Add(point, points);
-
-		return;
-	}
-
-	Point[point].PointPosition.Add(point_info);
+	DigitThread->bPositionActive = true;
 }
-
-void UDigitArchCore::GetJson(PointMode point, FString& json_string)
-{
-	if (!Point.Contains(point))
-		return;
-
-	FJsonObjectConverter::UStructToJsonObjectString(Point[point], json_string);
-}
-
-TMap<PointMode, FPoints> UDigitArchCore::GetPoint()
-{
-	return Point;
-}
+//
+//void UDigitArchCore::GetJson(PointMode point, FString& json_string)
+//{
+//	DigitThread->GetJson(point, json_string);
+//}
