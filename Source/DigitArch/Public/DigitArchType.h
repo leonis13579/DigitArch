@@ -24,6 +24,14 @@ enum class PointType : uint8
 	Sixteen
 };
 
+UENUM(BlueprintType)
+enum class CameraType : uint8
+{
+	Kinect,
+	OptiTrack,
+	Vive
+};
+
 USTRUCT(BlueprintType)
 struct DIGITARCH_API FPointInfo
 {
@@ -49,13 +57,27 @@ struct DIGITARCH_API FPointParam
 };
 
 USTRUCT(BlueprintType)
+struct DIGITARCH_API FCameraDigit
+{
+	GENERATED_BODY()
+
+		UPROPERTY(BlueprintReadOnly)
+		int32 CameraAt;
+
+	UPROPERTY(BlueprintReadOnly)
+		TArray<FPointParam> Data;
+};
+
+USTRUCT(BlueprintType)
 struct DIGITARCH_API FPoints
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadOnly)
+		CameraType CameraType;
 
 	UPROPERTY(BlueprintReadOnly)
-		TArray<FPointParam> Data;
+		TArray<FCameraDigit> Camera;
 };
 
 USTRUCT(BlueprintType)
@@ -63,6 +85,8 @@ struct DIGITARCH_API FPointVariable
 {
 	GENERATED_BODY()
 
+		UPROPERTY(BlueprintReadWrite)
+		int32 CameraAt;
 		UPROPERTY(BlueprintReadWrite)
 		PointType Type;
 	UPROPERTY(BlueprintReadWrite)

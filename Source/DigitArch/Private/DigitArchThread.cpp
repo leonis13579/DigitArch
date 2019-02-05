@@ -6,6 +6,11 @@ DEFINE_LOG_CATEGORY(DigitThread)
 
 #define MAX_FRAME 60
 
+DigitArchThread::DigitArchThread(CameraType camera_type)
+{
+	Points.CameraType = camera_type;
+}
+
 void DigitArchThread::WriteDataPoint()
 {
 	bPositionActive = false;
@@ -23,26 +28,51 @@ void DigitArchThread::WriteDataPoint()
 
 	FPointParam point_param;
 	FPointInfo point_info;
+	FCameraDigit camera;
 	for(int32 i = 0; i < point_variables.Num(); i++)
 	{
 		point_param.Type = point_variables[i].Type;
 		point_info.Position = point_variables[i].Position;
 		point_info.Frame = point_frame;
+		//point_param.PointInfo.Add(point_info);
+		//camera.Data.Add(point_param);
 
-		for (int32 j = 0; j < Points.Data.Num(); j++)
+		if(point_variables[i].CameraAt <= 0)
 		{
-			if (Points.Data[j].Type != point_param.Type)
-				continue;
+			camera.CameraAt = 1;
+		} else
+		{
+			camera.CameraAt = point_variables[i].CameraAt;
+		}
 
-			Points.Data[j].PointInfo.Add(point_info);
-			goto stop;
+		for (int32 j = 0; j < Points.Camera.Num(); j++)
+		{
+			if (Points.Camera[j].CameraAt != camera.CameraAt)
+			{
+				for (int32 k = 0; k < Points.Camera[j].Data.Num(); k++)
+				{
+					if (Points.Camera[j].Data[k].Type != point_param.Type)
+						continue;
+
+					Points.Camera[j].Data[k].PointInfo.Add(point_info);
+					goto stop1;
+				}
+				continue;
+			}
+				point_param.PointInfo.Add(point_info);
+				Points.Camera[j].Data.Add(point_param);
+				point_param.PointInfo.Empty();
+				goto stop1;
 		}
 
 		point_param.PointInfo.Add(point_info);
-		Points.Data.Add(point_param);
+		camera.Data.Add(point_param);
+		Points.Camera.Add(camera);
 		point_param.PointInfo.Empty();
+		camera.Data.Empty();
 
-	stop:
+		stop1:
+
 		continue;
 	}
 		
@@ -51,7 +81,7 @@ void DigitArchThread::WriteDataPoint()
 
 void DigitArchThread::GetJson(FString& json_string)
 {
-	if (Points.Data.Num() == 0)
+	if (Points.Camera.Num() == 0)
 		return;
 
 	FJsonObjectConverter::UStructToJsonObjectString(Points, json_string);
@@ -70,7 +100,7 @@ void DigitArchThread::GetJson(FString& json_string)
 		}
 	}
 
-	Points.Data.Empty();
+	Points.Camera.Empty();
 }
 
 uint32 DigitArchThread::Run()
