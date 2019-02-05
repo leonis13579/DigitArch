@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "RunnableThread.h"
+#include "DigitArchType.h"
 #include "DigitArchThread.h"
 #include "DigitArchCore.generated.h"
+
 
 
 UCLASS(Blueprintable, BlueprintType)
@@ -20,10 +22,10 @@ public:
 	~UDigitArchCore();
 
 	UFUNCTION(BlueprintPure)
-	static UDigitArchCore* CreateDigitArchCore(PointMode point);
+	static UDigitArchCore* CreateDigitArchCore();
 
 	UFUNCTION(BlueprintCallable)
-	void SetPoint(FVector position);
+	void SetPoint(TArray<FPointVariable> Points);
 
 	//UFUNCTION(BlueprintPure)
 	//	void GetJson(PointMode point, FString& json_string);

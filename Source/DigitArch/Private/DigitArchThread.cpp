@@ -2,52 +2,66 @@
 
 #include "DigitArchThread.h"
 
+DEFINE_LOG_CATEGORY(DigitThread)
+
 #define MAX_FRAME 60
 
-DigitArchThread::DigitArchThread(PointMode mode)
+DigitArchThread::DigitArchThread()
 {
-	Points.TypePoint = mode;
+
 }
 
 void DigitArchThread::SetPoint()
 {
 	bPositionActive = false;
 
-	if (point_frame >= MAX_FRAME)
+	if (point_frame > MAX_FRAME)
 	{
 		FString json_string;
 		GetJson(json_string);
-		//UE_LOG(LogTemp, Log, TEXT("%s"), *json_string);
 
-		point_frame = 0;
+		// Careful with that
+		//UE_LOG(DigitThread, Log, TEXT("%s"), *json_string); 
+
+		point_frame = 1;
 	}
 
+	FPointParam point_param;
 	FPointInfo point_info;
-	point_info.Position = point;
-	point_info.Frame = ++point_frame;
-
-	/*if (!Point.Contains(PointMode::One))
+	for(int32 i = 0; i < point_variables.Num(); i++)
 	{
-		FPoints points;
-		points.PointPosition.Add(point_info);
-		Point.Add(PointMode::One, points);
+		point_param.Type = point_variables[i].Type;
+		point_info.Position = point_variables[i].Position;
+		point_info.Frame = point_frame;
 
-		return;
+		for (int32 j = 0; j < Points.Data.Num(); j++)
+		{
+			if (Points.Data[j].Type != point_param.Type)
+				continue;
+
+			Points.Data[j].PointInfo.Add(point_info);
+			goto stop;
+		}
+
+		point_param.PointInfo.Add(point_info);
+		Points.Data.Add(point_param);
+		point_param.PointInfo.Empty();
+
+	stop:
+		continue;
 	}
-
-	Point[PointMode::One].PointPosition.Add(point_info);*/
-
-	Points.PointPosition.Add(point_info);
+		
+	++point_frame;
 }
 
 void DigitArchThread::GetJson(FString& json_string)
 {
-	if (Points.PointPosition.Num() == 0)
+	if (Points.Data.Num() == 0)
 		return;
 
 	FJsonObjectConverter::UStructToJsonObjectString(Points, json_string);
 
-	Points.PointPosition.Empty();
+	Points.Data.Empty();
 	
 }
 

@@ -16,17 +16,19 @@ UDigitArchCore::~UDigitArchCore()
 	}
 }
 
-UDigitArchCore* UDigitArchCore::CreateDigitArchCore(PointMode point)
+UDigitArchCore* UDigitArchCore::CreateDigitArchCore()
 {
 	const auto obj = NewObject<UDigitArchCore>();
-	obj->DigitThread = new DigitArchThread(point);
+	obj->DigitThread = new DigitArchThread();
 	obj->Thread = FRunnableThread::Create(obj->DigitThread, TEXT("DigitArchThread"));
 	return obj;
 }
 
-void UDigitArchCore::SetPoint(FVector position)
+void UDigitArchCore::SetPoint(TArray<FPointVariable> Points)
 {
-	DigitThread->point = position;
-
-	DigitThread->bPositionActive = true;
+	if (DigitThread && Thread) {
+		
+		DigitThread->point_variables = Points;
+		DigitThread->bPositionActive = true;
+	}
 }

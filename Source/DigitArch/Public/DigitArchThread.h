@@ -4,44 +4,15 @@
 
 #include "Engine.h"
 #include "Runnable.h"
+#include "DigitArchType.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
-#include "DigitArchThread.generated.h"
 
-UENUM(BlueprintType)
-enum class PointMode : uint8
-{
-	One,
-	Two
-};
-
-USTRUCT(BlueprintType)
-struct DIGITARCH_API FPointInfo
-{
-	GENERATED_BODY()
-
-		UPROPERTY(BlueprintReadOnly)
-		int32 Frame;
-
-	UPROPERTY(BlueprintReadOnly)
-		FVector Position;
-};
-
-USTRUCT(BlueprintType)
-struct DIGITARCH_API FPoints
-{
-	GENERATED_BODY()
-
-		UPROPERTY(BlueprintReadOnly)
-	PointMode TypePoint;
-
-	UPROPERTY(BlueprintReadOnly)
-	TArray<FPointInfo> PointPosition;
-};
+DECLARE_LOG_CATEGORY_EXTERN(DigitThread, Log, All);
 
 class DIGITARCH_API DigitArchThread : public FRunnable
 {
 public:
-	DigitArchThread(PointMode mode);
+	DigitArchThread();
 	//~DigitArchThread();
 
 	void SetPoint();
@@ -50,14 +21,16 @@ public:
 	bool bPositionActive = false;
 	FVector point;
 
+	TArray<FPointVariable> point_variables;
+
 private:
 
 	uint32 Run() override;
 	void Exit() override;
 	void Stop() override;
 
-	int32 point_frame = 0;
-	//TMap<PointMode, FPoints> Point;
+	int32 point_frame = 1;
+
 
 	FPoints Points;
 
