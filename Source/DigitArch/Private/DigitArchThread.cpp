@@ -6,12 +6,7 @@ DEFINE_LOG_CATEGORY(DigitThread)
 
 #define MAX_FRAME 60
 
-DigitArchThread::DigitArchThread()
-{
-
-}
-
-void DigitArchThread::SetPoint()
+void DigitArchThread::WriteDataPoint()
 {
 	bPositionActive = false;
 
@@ -71,7 +66,7 @@ uint32 DigitArchThread::Run()
 	{
 		//FPlatformProcess::Sleep(0.01);
 		if (bPositionActive)
-			SetPoint();
+			WriteDataPoint();
 	}
 	return 0;
 }

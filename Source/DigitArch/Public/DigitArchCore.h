@@ -18,20 +18,21 @@ class DIGITARCH_API UDigitArchCore : public UObject
 
 public:
 
-	UDigitArchCore();
 	~UDigitArchCore();
 
+	//Create class
 	UFUNCTION(BlueprintPure)
 	static UDigitArchCore* CreateDigitArchCore();
 
+	// Set data from point
 	UFUNCTION(BlueprintCallable)
 	void SetPoint(TArray<FPointVariable> Points);
 
-	//UFUNCTION(BlueprintPure)
-	//	void GetJson(PointMode point, FString& json_string);
-
 private:
 
+	//Class is thread
 	DigitArchThread* DigitThread;
+
+	//Thread function
 	FRunnableThread* Thread;
 };

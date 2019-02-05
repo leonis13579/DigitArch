@@ -2,12 +2,6 @@
 
 #include "DigitArchCore.h"
 
-
-UDigitArchCore::UDigitArchCore()
-{
-
-}
-
 UDigitArchCore::~UDigitArchCore()
 {
 	if (Thread != nullptr) {

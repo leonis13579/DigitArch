@@ -12,15 +12,17 @@ DECLARE_LOG_CATEGORY_EXTERN(DigitThread, Log, All);
 class DIGITARCH_API DigitArchThread : public FRunnable
 {
 public:
-	DigitArchThread();
-	//~DigitArchThread();
 
-	void SetPoint();
+	// Write data to struct
+	void WriteDataPoint();
+
+	// Convert data to Json
 	void GetJson(FString& json_string);
 
+	// Start function SetPoint
 	bool bPositionActive = false;
-	FVector point;
 
+	// Source data
 	TArray<FPointVariable> point_variables;
 
 private:
@@ -29,11 +31,13 @@ private:
 	void Exit() override;
 	void Stop() override;
 
+	// Frame
 	int32 point_frame = 1;
 
-
+	// Struct data
 	FPoints Points;
 
+	// Start Thread
 	bool working = true;
 
 };
