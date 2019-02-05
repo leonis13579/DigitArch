@@ -26,7 +26,8 @@ public:
 
 	// Set data from point
 	UFUNCTION(BlueprintCallable)
-	void SetPoint(TArray<FPointVariable> Points);
+	void SetPoint(TArray<FPointVariable> Points, bool log_to_file);
+
 
 private:
 

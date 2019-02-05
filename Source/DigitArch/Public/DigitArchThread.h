@@ -25,6 +25,8 @@ public:
 	// Source data
 	TArray<FPointVariable> point_variables;
 
+	bool Log;
+
 private:
 
 	uint32 Run() override;

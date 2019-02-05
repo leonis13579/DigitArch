@@ -18,11 +18,12 @@ UDigitArchCore* UDigitArchCore::CreateDigitArchCore()
 	return obj;
 }
 
-void UDigitArchCore::SetPoint(TArray<FPointVariable> Points)
+void UDigitArchCore::SetPoint(TArray<FPointVariable> Points, bool log_to_file)
 {
 	if (DigitThread && Thread) {
 		
 		DigitThread->point_variables = Points;
 		DigitThread->bPositionActive = true;
+		DigitThread->Log = log_to_file;
 	}
 }
