@@ -56,6 +56,23 @@ void DigitArchThread::GetJson(FString& json_string)
 
 	FJsonObjectConverter::UStructToJsonObjectString(Points, json_string);
 
+
+	// Write in file
+	if(Log)
+	{
+		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+		const FString ProjectDir = FPaths::ProjectDir() / "Log";
+		const FString fileName = "points.json";
+		if (PlatformFile.CreateDirectory(*ProjectDir))
+		{
+			const FString AbsoluteFilePath = ProjectDir / fileName;
+			FPaths::GetProjectFilePath();
+
+			FFileHelper::SaveStringToFile(json_string, *AbsoluteFilePath);
+		}
+	}
+
 	Points.Data.Empty();
 	
 }
