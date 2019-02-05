@@ -42,4 +42,6 @@ private:
 	// Start Thread
 	bool working = true;
 
+	const FString ProjectDir = FPaths::ProjectDir() / "Log";
+	const FString fileName = "points.json";
 };

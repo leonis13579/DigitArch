@@ -10,7 +10,6 @@
 #include "DigitArchCore.generated.h"
 
 
-
 UCLASS(Blueprintable, BlueprintType)
 class DIGITARCH_API UDigitArchCore : public UObject
 {
