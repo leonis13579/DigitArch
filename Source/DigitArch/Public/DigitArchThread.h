@@ -13,6 +13,8 @@ class DIGITARCH_API DigitArchThread : public FRunnable
 {
 public:
 
+	DigitArchThread(CameraType camera_type);
+
 	// Write data to struct
 	void WriteDataPoint();
 

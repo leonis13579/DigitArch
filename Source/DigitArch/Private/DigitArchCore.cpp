@@ -10,10 +10,10 @@ UDigitArchCore::~UDigitArchCore()
 	}
 }
 
-UDigitArchCore* UDigitArchCore::CreateDigitArchCore()
+UDigitArchCore* UDigitArchCore::CreateDigitArchCore(CameraType camera_type)
 {
 	const auto obj = NewObject<UDigitArchCore>();
-	obj->DigitThread = new DigitArchThread();
+	obj->DigitThread = new DigitArchThread(camera_type);
 	obj->Thread = FRunnableThread::Create(obj->DigitThread, TEXT("DigitArchThread"));
 	return obj;
 }

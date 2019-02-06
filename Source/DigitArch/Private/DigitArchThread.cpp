@@ -6,6 +6,11 @@ DEFINE_LOG_CATEGORY(DigitThread)
 
 #define MAX_FRAME 60
 
+DigitArchThread::DigitArchThread(CameraType camera_type)
+{
+	Points.DeviceType = camera_type;
+}
+
 void DigitArchThread::WriteDataPoint()
 {
 	bPositionActive = false;
@@ -23,26 +28,49 @@ void DigitArchThread::WriteDataPoint()
 
 	FPointParam point_param;
 	FPointInfo point_info;
+	FCameraDigit camera;
 	for(int32 i = 0; i < point_variables.Num(); i++)
 	{
 		point_param.Type = point_variables[i].Type;
 		point_info.Position = point_variables[i].Position;
 		point_info.Frame = point_frame;
+		//point_param.PointInfo.Add(point_info);
+		//camera.Data.Add(point_param);
 
-		for (int32 j = 0; j < Points.Data.Num(); j++)
+		if(point_variables[i].CameraAt <= 0)
 		{
-			if (Points.Data[j].Type != point_param.Type)
-				continue;
-
-			Points.Data[j].PointInfo.Add(point_info);
-			goto stop;
+			camera.CameraAt = 1;
+		} else
+		{
+			camera.CameraAt = point_variables[i].CameraAt;
 		}
 
-		point_param.PointInfo.Add(point_info);
-		Points.Data.Add(point_param);
-		point_param.PointInfo.Empty();
+		for (int32 j = 0; j < Points.DeviceData.Num(); j++)
+		{
+			if (Points.DeviceData[j].CameraAt == camera.CameraAt)
+			{
+				for (int32 k = 0; k < Points.DeviceData[j].Data.Num(); k++)
+				{
+					if (Points.DeviceData[j].Data[k].Type != point_param.Type)
+						continue;
 
-	stop:
+					Points.DeviceData[j].Data[k].PointInfo.Add(point_info);
+					goto stop1;
+				}
+				point_param.PointInfo.Add(point_info);
+				Points.DeviceData[j].Data.Add(point_param);
+				point_param.PointInfo.Empty();
+				goto stop1;
+			}
+		}
+	
+		point_param.PointInfo.Add(point_info);
+		camera.Data.Add(point_param);
+		Points.DeviceData.Add(camera);
+		point_param.PointInfo.Empty();
+		camera.Data.Empty();
+		stop1:
+
 		continue;
 	}
 		
@@ -51,7 +79,7 @@ void DigitArchThread::WriteDataPoint()
 
 void DigitArchThread::GetJson(FString& json_string)
 {
-	if (Points.Data.Num() == 0)
+	if (Points.DeviceData.Num() == 0)
 		return;
 
 	FJsonObjectConverter::UStructToJsonObjectString(Points, json_string);
@@ -70,7 +98,7 @@ void DigitArchThread::GetJson(FString& json_string)
 		}
 	}
 
-	Points.Data.Empty();
+	Points.DeviceData.Empty();
 }
 
 uint32 DigitArchThread::Run()
