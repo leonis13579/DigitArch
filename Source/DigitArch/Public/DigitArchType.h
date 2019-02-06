@@ -29,7 +29,7 @@ enum class CameraType : uint8
 {
 	Kinect,
 	OptiTrack,
-	Vive
+	Vive 
 };
 
 USTRUCT(BlueprintType)
@@ -74,10 +74,10 @@ struct DIGITARCH_API FPoints
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-		CameraType CameraType;
+		CameraType DeviceType;
 
 	UPROPERTY(BlueprintReadOnly)
-		TArray<FCameraDigit> Camera;
+		TArray<FCameraDigit> DeviceData;
 };
 
 USTRUCT(BlueprintType)

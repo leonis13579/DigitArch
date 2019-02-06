@@ -8,7 +8,7 @@ DEFINE_LOG_CATEGORY(DigitThread)
 
 DigitArchThread::DigitArchThread(CameraType camera_type)
 {
-	Points.CameraType = camera_type;
+	Points.DeviceType = camera_type;
 }
 
 void DigitArchThread::WriteDataPoint()
@@ -45,32 +45,30 @@ void DigitArchThread::WriteDataPoint()
 			camera.CameraAt = point_variables[i].CameraAt;
 		}
 
-		for (int32 j = 0; j < Points.Camera.Num(); j++)
+		for (int32 j = 0; j < Points.DeviceData.Num(); j++)
 		{
-			if (Points.Camera[j].CameraAt != camera.CameraAt)
+			if (Points.DeviceData[j].CameraAt == camera.CameraAt)
 			{
-				for (int32 k = 0; k < Points.Camera[j].Data.Num(); k++)
+				for (int32 k = 0; k < Points.DeviceData[j].Data.Num(); k++)
 				{
-					if (Points.Camera[j].Data[k].Type != point_param.Type)
+					if (Points.DeviceData[j].Data[k].Type != point_param.Type)
 						continue;
 
-					Points.Camera[j].Data[k].PointInfo.Add(point_info);
+					Points.DeviceData[j].Data[k].PointInfo.Add(point_info);
 					goto stop1;
 				}
-				continue;
-			}
 				point_param.PointInfo.Add(point_info);
-				Points.Camera[j].Data.Add(point_param);
+				Points.DeviceData[j].Data.Add(point_param);
 				point_param.PointInfo.Empty();
 				goto stop1;
+			}
 		}
-
+	
 		point_param.PointInfo.Add(point_info);
 		camera.Data.Add(point_param);
-		Points.Camera.Add(camera);
+		Points.DeviceData.Add(camera);
 		point_param.PointInfo.Empty();
 		camera.Data.Empty();
-
 		stop1:
 
 		continue;
@@ -81,7 +79,7 @@ void DigitArchThread::WriteDataPoint()
 
 void DigitArchThread::GetJson(FString& json_string)
 {
-	if (Points.Camera.Num() == 0)
+	if (Points.DeviceData.Num() == 0)
 		return;
 
 	FJsonObjectConverter::UStructToJsonObjectString(Points, json_string);
@@ -100,7 +98,7 @@ void DigitArchThread::GetJson(FString& json_string)
 		}
 	}
 
-	Points.Camera.Empty();
+	Points.DeviceData.Empty();
 }
 
 uint32 DigitArchThread::Run()
