@@ -65,7 +65,7 @@ struct DIGITARCH_API FCameraDigit
 		int32 CameraAt;
 
 	UPROPERTY(BlueprintReadOnly)
-		TArray<FPointParam> Data;
+		TArray<FPointParam> CameraData;
 };
 
 USTRUCT(BlueprintType)

@@ -49,26 +49,26 @@ void DigitArchThread::WriteDataPoint()
 		{
 			if (Points.DeviceData[j].CameraAt == camera.CameraAt)
 			{
-				for (int32 k = 0; k < Points.DeviceData[j].Data.Num(); k++)
+				for (int32 k = 0; k < Points.DeviceData[j].CameraData.Num(); k++)
 				{
-					if (Points.DeviceData[j].Data[k].Type != point_param.Type)
+					if (Points.DeviceData[j].CameraData[k].Type != point_param.Type)
 						continue;
 
-					Points.DeviceData[j].Data[k].PointInfo.Add(point_info);
+					Points.DeviceData[j].CameraData[k].PointInfo.Add(point_info);
 					goto stop1;
 				}
 				point_param.PointInfo.Add(point_info);
-				Points.DeviceData[j].Data.Add(point_param);
+				Points.DeviceData[j].CameraData.Add(point_param);
 				point_param.PointInfo.Empty();
 				goto stop1;
 			}
 		}
 	
 		point_param.PointInfo.Add(point_info);
-		camera.Data.Add(point_param);
+		camera.CameraData.Add(point_param);
 		Points.DeviceData.Add(camera);
 		point_param.PointInfo.Empty();
-		camera.Data.Empty();
+		camera.CameraData.Empty();
 		stop1:
 
 		continue;
