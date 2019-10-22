@@ -39,7 +39,8 @@ public class DigitArch : ModuleRules
 				"Slate",
 				"SlateCore",
                 "Json",
-                "JsonUtilities"
+                "JsonUtilities",
+                "Http"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -6,9 +6,10 @@ DEFINE_LOG_CATEGORY(DigitThread)
 
 #define MAX_FRAME 60
 
-DigitArchThread::DigitArchThread(CameraType camera_type)
+DigitArchThread::DigitArchThread()
 {
-	Points.DeviceType = camera_type;
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	PlatformFile.DeleteDirectoryRecursively(*ProjectDir);
 }
 
 void DigitArchThread::WriteDataPoint()
@@ -26,79 +27,106 @@ void DigitArchThread::WriteDataPoint()
 		point_frame = 1;
 	}
 
+	FPoints points;
 	FPointParam point_param;
 	FPointInfo point_info;
 	FCameraDigit camera;
 	for(int32 i = 0; i < point_variables.Num(); i++)
 	{
+		points.DeviceType = point_variables[i].DeviceType;
 		point_param.Type = point_variables[i].Type;
 		point_info.Position = point_variables[i].Position;
 		point_info.Frame = point_frame;
+		camera.CameraAt = point_variables[i].CameraAt;
 		//point_param.PointInfo.Add(point_info);
 		//camera.Data.Add(point_param);
-
-		if(point_variables[i].CameraAt <= 0)
+		for (int32 h = 0; h < PointsArray.Points.Num(); h++) 
 		{
-			camera.CameraAt = 1;
-		} else
-		{
-			camera.CameraAt = point_variables[i].CameraAt;
-		}
-
-		for (int32 j = 0; j < Points.DeviceData.Num(); j++)
-		{
-			if (Points.DeviceData[j].CameraAt == camera.CameraAt)
+			if (PointsArray.Points[h].DeviceType == points.DeviceType)
 			{
-				for (int32 k = 0; k < Points.DeviceData[j].CameraData.Num(); k++)
+				for (int32 j = 0; j < PointsArray.Points[h].DeviceData.Num(); j++)
 				{
-					if (Points.DeviceData[j].CameraData[k].Type != point_param.Type)
-						continue;
+					if (PointsArray.Points[h].DeviceData[j].CameraAt == camera.CameraAt)
+					{
+						for (int32 k = 0; k < PointsArray.Points[h].DeviceData[j].CameraData.Num(); k++)
+						{
+							if (PointsArray.Points[h].DeviceData[j].CameraData[k].Type != point_param.Type)
+								continue;
 
-					Points.DeviceData[j].CameraData[k].PointInfo.Add(point_info);
-					goto stop1;
+							PointsArray.Points[h].DeviceData[j].CameraData[k].PointInfo.Add(point_info);
+							goto stop1;
+						}
+						point_param.PointInfo.Add(point_info);
+						PointsArray.Points[h].DeviceData[j].CameraData.Add(point_param);
+						point_param.PointInfo.Empty();
+						goto stop1;
+					}
 				}
 				point_param.PointInfo.Add(point_info);
-				Points.DeviceData[j].CameraData.Add(point_param);
+				camera.CameraData.Add(point_param);
+				PointsArray.Points[h].DeviceData.Add(camera);
 				point_param.PointInfo.Empty();
-				goto stop1;
+				camera.CameraData.Empty();
 			}
 		}
-	
 		point_param.PointInfo.Add(point_info);
 		camera.CameraData.Add(point_param);
-		Points.DeviceData.Add(camera);
+		points.DeviceData.Add(camera);
+		if (!PointArray.CheckIn(points)) {
+			PointsArray.Points.Add(points);
+		}
 		point_param.PointInfo.Empty();
 		camera.CameraData.Empty();
-		stop1:
+		points.DeviceData.Empty();
+	stop1:
 
 		continue;
 	}
 		
-	++point_frame;
+	if (GoNextFrame) {
+		++point_frame;
+		GoNextFrame = false;
+	}
 }
 
 void DigitArchThread::GetJson(FString& json_string)
 {
-	if (Points.DeviceData.Num() == 0)
+	if (PointsArray.Points.Num() == 0)
 		return;
 
-	FJsonObjectConverter::UStructToJsonObjectString(Points, json_string);
+	FJsonObjectConverter::UStructToJsonObjectString(PointsArray, json_string);
+
+	//UE_LOG(LogTemp, Log, TEXT("Work"));
 
 	// Write in file
 	if(Log)
 	{
+		//UE_LOG(LogTemp, Log, TEXT("Record"));
+
 		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
 		if (PlatformFile.CreateDirectory(*ProjectDir))
 		{
-			const FString AbsoluteFilePath = ProjectDir / fileName;
+			const FString AbsoluteFilePath = ProjectDir / fileName + FString::FromInt(file_part) + fileFormat;
 			FPaths::GetProjectFilePath();
 
 			FFileHelper::SaveStringToFile(json_string, *AbsoluteFilePath);
 		}
 	}
 
-	Points.DeviceData.Empty();
+	if (Send) {
+		//UE_LOG(LogTemp, Log, TEXT("Send"));
+		file_count++;
+		TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
+		Request->SetURL(GetURI() + "/api/File/upload/" + FileName + "/" + FString::FromInt(file_count));
+		Request->SetVerb("POST");
+		Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+		Request->SetContentAsString(json_string);
+		Request->ProcessRequest();
+	}
+
+	++file_part;
+	PointsArray.Points.Empty();
 }
 
 uint32 DigitArchThread::Run()
@@ -119,4 +147,27 @@ void DigitArchThread::Exit()
 void DigitArchThread::Stop()
 {
 	working = false;
+}
+
+FString DigitArchThread::GetURI() {
+	const FString JsonPath = FPaths::ProjectConfigDir() / "Settings.json";
+
+	FString data;
+
+	if (!FFileHelper::LoadFileToString(data, *JsonPath)) {
+		UE_LOG(LogTemp, Error, TEXT("Not setting!"));
+		return "";
+	}
+
+	const TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(data);
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+
+	FString ServerUri;
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid()) {
+		if (!JsonObject.Get()->TryGetStringField("ServerName", ServerUri)) {
+			UE_LOG(LogTemp, Error, TEXT("Not parametr 'ServerName' !"));
+			return "";
+		}
+	}
+	return ServerUri;
 }

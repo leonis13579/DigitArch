@@ -6,22 +6,22 @@
 UENUM(BlueprintType)
 enum class PointType : uint8
 {
-	One,
-	Two,
-	Three,
-	Four,
-	Five,
-	Six,
-	Seven,
-	Eight,
-	Nine,
-	Ten,
-	Eleven,
-	Twelve,
-	Thirteen,
-	Fourteen,
-	Fifteen,
-	Sixteen
+	RightWrist,
+	RightElbow,
+	RightShoulder,
+	Head,
+	LeftWrist,
+	LeftElbow,
+	LeftShoulder,
+	CenterOfShoulders,
+	Spine,
+	CenterOfHip,
+	RightHip,
+	RightKnee,
+	RightAnkle,
+	LeftHip,
+	LeftKnee,
+	LeftAnkle
 };
 
 UENUM(BlueprintType)
@@ -29,7 +29,8 @@ enum class CameraType : uint8
 {
 	Kinect,
 	OptiTrack,
-	Vive 
+	Vive,
+	PerceptionNeuron
 };
 
 USTRUCT(BlueprintType)
@@ -62,7 +63,7 @@ struct DIGITARCH_API FCameraDigit
 	GENERATED_BODY()
 
 		UPROPERTY(BlueprintReadOnly)
-		int32 CameraAt;
+		FString CameraAt;
 
 	UPROPERTY(BlueprintReadOnly)
 		TArray<FPointParam> CameraData;
@@ -78,6 +79,25 @@ struct DIGITARCH_API FPoints
 
 	UPROPERTY(BlueprintReadOnly)
 		TArray<FCameraDigit> DeviceData;
+
+	bool Contains(CameraType device);
+};
+
+USTRUCT(BlueprintType)
+struct DIGITARCH_API FArrayPoints {
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+		TArray<FPoints> Points;
+
+	bool CheckIn(FPoints points) {
+		for (int32 i = 0; i < Points.Num(); i++) {
+			if (Points[i].DeviceType == points.DeviceType) {
+				return true;
+			}
+		}
+		return false;
+	};
 };
 
 USTRUCT(BlueprintType)
@@ -86,9 +106,11 @@ struct DIGITARCH_API FPointVariable
 	GENERATED_BODY()
 
 		UPROPERTY(BlueprintReadWrite)
-		int32 CameraAt;
+		CameraType DeviceType;
+		UPROPERTY(BlueprintReadWrite)
+		FString CameraAt;
 		UPROPERTY(BlueprintReadWrite)
 		PointType Type;
-	UPROPERTY(BlueprintReadWrite)
+		UPROPERTY(BlueprintReadWrite)
 		FVector Position;
 };

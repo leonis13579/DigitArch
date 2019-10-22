@@ -21,11 +21,14 @@ public:
 
 	//Create class
 	UFUNCTION(BlueprintPure)
-	static UDigitArchCore* CreateDigitArchCore(CameraType camera_type);
+	static UDigitArchCore* CreateDigitArchCore();
 
 	// Set data from point
 	UFUNCTION(BlueprintCallable)
-	void SetPoint(TArray<FPointVariable> Points, bool log_to_file);
+	void SetPoint(TArray<FPointVariable> Points, FString file_name, bool send_to_server, bool log_to_file);
+
+	UFUNCTION(BlueprintCallable)
+	void NextFrame();
 
 private:
 
