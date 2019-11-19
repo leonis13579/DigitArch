@@ -34,7 +34,7 @@ public:
 
 	bool Log;
 	bool Send;
-	bool GoNextFrame;
+	bool GoNextFrame = false;
 
 	FString FileName;
 

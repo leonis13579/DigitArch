@@ -72,7 +72,7 @@ void DigitArchThread::WriteDataPoint()
 		point_param.PointInfo.Add(point_info);
 		camera.CameraData.Add(point_param);
 		points.DeviceData.Add(camera);
-		if (!PointArray.CheckIn(points)) {
+		if (!PointsArray.CheckIn(points)) {
 			PointsArray.Points.Add(points);
 		}
 		point_param.PointInfo.Empty();
